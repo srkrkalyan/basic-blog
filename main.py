@@ -77,7 +77,7 @@ class PermaLink(Handler):
 	def get(self,blog_id):
 		# Get the latest blog entry from Blog table using newly generated blog_id. 
 		# I can do this by 'select * from Blog order by created desc'.fetch(limit=1)
-		time.sleep(1)
+		
 		blog = db.GqlQuery("select * from Blog where blog_id ="+ str(blog_id)).get()
 		
 		# Rendering Permalink page with details of title (Subject) and Blog (Content)
