@@ -1,0 +1,15 @@
+<!DOCTYPE HTML>
+
+<html>
+<body>
+	{% if blogs %}
+	{% for blog in blogs %}
+	<h3>{{blog.title}}</h3>
+	<hr>
+	<div>
+		{{blog.blog}}
+	</div>
+	{% endfor %}
+	{% endif %}
+</body>
+</html>
