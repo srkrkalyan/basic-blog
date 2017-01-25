@@ -132,6 +132,11 @@ class Login(Handler):
 			error = "Both user name and password required"
 			self.render("login.html", username=username,error=error)
 
+class Logout(Handler):
+	def get(self):
+		self.response.headers.add_header('set-cookie','user_id=; path=/')
+		self.redirect('/blog/signup')
+
 class Welcome(Handler):
 	def get(self):
 		cookie_value = self.request.cookies.get('user_id')
@@ -176,5 +181,6 @@ app = webapp2.WSGIApplication([
     ('/blog/newpost', NewPostHandler),
     ('/blog/([0-9]+)', PermaLink),
     ('/blog/welcome', Welcome),
-    ('/blog/login', Login)
+    ('/blog/login', Login),
+    ('/blog/logout', Logout)
 ], debug=True)
