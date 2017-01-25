@@ -64,6 +64,14 @@ class Handler(webapp2.RequestHandler):
 	def hashme(self,password):
 		return hashlib.sha256(password).hexdigest()
 
+	def validate_user_login(self,username,password):
+		user_details = db.GqlQuery("select * from User where user_name= :1", username).get()
+		if user_details.password == self.hashme(password):
+			return True
+		else:
+			return False
+
+
 class BlogHandler(Handler):
     def get(self):
     	if (db.GqlQuery("select * from Blog").count()) > 0:
@@ -96,6 +104,33 @@ class SignUp(Handler):
 		else:
 			error = "Both username and password required. Please give all required details"
 			self.render("sign_up.html",username=username,password=password, verify_password=verify_password,error=error)			
+
+
+class Login(Handler):
+	def get(self):
+		self.render("login.html")
+	def post(self):
+		username = self.request.get("username")
+		password=self.request.get("password")
+		user_entry = db.GqlQuery("select * from User where user_name= :1", username).get()
+		print user_entry.user_name
+		# This needs to be commented before deployment
+		time.sleep(2)
+		if username and password:
+			if user_entry:
+				if self.validate_user_login(username,password):
+					cookie_value=str(user_entry.user_id)+'|'+str(self.hashme(str(user_entry.user_id)))
+					self.response.headers.add_header('set-cookie','user_id=%s; path=/' % cookie_value)
+					self.redirect('/blog/welcome')
+				else:
+					error = "Either user or password is incorrect. Please check again !!!"
+					self.render("login.html", username=username,error=error)
+			else:
+				error="User does not exist"
+				self.render("login.html", username=username,error=error)
+		else:
+			error = "Both user name and password required"
+			self.render("login.html", username=username,error=error)
 
 class Welcome(Handler):
 	def get(self):
@@ -134,10 +169,12 @@ class PermaLink(Handler):
 	def post(self,*a,**kw):
 		self.render("blog_details.html")
 
+
 app = webapp2.WSGIApplication([
 	('/blog/signup', SignUp),
     ('/blog', BlogHandler),
     ('/blog/newpost', NewPostHandler),
     ('/blog/([0-9]+)', PermaLink),
-    ('/blog/welcome', Welcome)
+    ('/blog/welcome', Welcome),
+    ('/blog/login', Login)
 ], debug=True)
