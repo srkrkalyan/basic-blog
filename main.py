@@ -76,7 +76,7 @@ class SignUp(Handler):
 		users_count = db.GqlQuery("select * from User").count()
 		user_id = self.new_user_id(users_count)
 		cookie_value=str(user_id)+'|'+str(self.hashme(str(user_id)))
-		self.response.headers.add_header('Set-Cookie','user_id=%s; path=/' % cookie_value)
+		self.response.headers.add_header('set-cookie','user_id=%s; path=/' % cookie_value)
 		self.render("sign_up.html")
 	def post(self,*args,**kw):
 		username = self.request.get("username")
