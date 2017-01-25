@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<h3>User Registration</h3>
+	<form method="post">
+		<div>
+			Username*
+			<input type="text" name="username" value="{{username}}">
+		</div>
+		<br>
+		<div>
+			Password*
+			<input type="password" name="password" value="{{password}}">
+		</div>
+		<br>
+		<div>
+			Verify Password*
+			<input type="password" name="verify" value="{{verify_password}}">
+		</div>
+		<br>
+		<div>
+			Email (optional)
+			<input type="text" name="email" value="{{email}}">
+		</div>
+		<h4>{{error}}</h4>
+		<br>
+		<div>
+			<input type="Submit" name="submit">
+		</div>
+	</form>
+</head>
+</html>
