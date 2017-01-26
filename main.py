@@ -113,9 +113,9 @@ class Login(Handler):
 		username = self.request.get("username")
 		password=self.request.get("password")
 		user_entry = db.GqlQuery("select * from User where user_name= :1", username).get()
-		print user_entry.user_name
 		# This needs to be commented before deployment
-		time.sleep(2)
+		#time.sleep(2)
+		#print user_entry.user_name
 		if username and password:
 			if user_entry:
 				if self.validate_user_login(username,password):
