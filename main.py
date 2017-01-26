@@ -33,6 +33,7 @@ class Blog(db.Model):
 	blog = db.TextProperty(required = True)
 	created = db.DateTimeProperty(auto_now_add = True, indexed=True)
 	blog_id = db.IntegerProperty(required=True)
+	user_id = db.IntegerProperty(required=True)
 
 
 class User(db.Model):
@@ -71,12 +72,24 @@ class Handler(webapp2.RequestHandler):
 		else:
 			return False
 
+	def get_current_user(self):
+		cookie_value = self.request.cookies.get('user_id').split('|')[0]
+		if cookie_value:
+			if db.GqlQuery('select * from User where user_id='+str(cookie_value)).get():
+				return cookie_value
+			else:
+				return None
+		else:
+			return None
 
 class BlogHandler(Handler):
     def get(self):
+    	cookie_value = self.request.cookies.get('user_id')
     	if (db.GqlQuery("select * from Blog").count()) > 0:
-	    	blogs = db.GqlQuery("select * from Blog order by created desc").fetch(limit=10)
-	    	self.render("blog_front.html",blogs=blogs)
+    		blogs = db.GqlQuery("select * from Blog order by created desc").fetch(limit=10)
+    		self.render("blog_front.html",blogs=blogs,cookie_value=cookie_value)
+    	else:
+    		self.render("blog_front.html")
 
 class SignUp(Handler):
 	def get(self):
@@ -107,8 +120,19 @@ class SignUp(Handler):
 
 
 class Login(Handler):
+	# Render basic login form
 	def get(self):
-		self.render("login.html")
+		cookie_value = self.request.cookies.get('user_id')
+		if cookie_value:
+			if db.GqlQuery('select * from User where user_id='+str(cookie_value.split('|')[0])).get():
+				self.render("login.html", cookie_value=cookie_value.split('|')[0])
+			else:
+				self.render("login.html",cookie_value=None)
+		else:
+			self.render("login.html",cookie_value=None)
+	
+	# User submits login form data. 
+	# If user authentication successful, navigate to welcome page with list of all his blogs
 	def post(self):
 		username = self.request.get("username")
 		password=self.request.get("password")
@@ -135,29 +159,50 @@ class Login(Handler):
 class Logout(Handler):
 	def get(self):
 		self.response.headers.add_header('set-cookie','user_id=; path=/')
-		self.redirect('/blog/signup')
+		self.response.headers.add_header('set-cookie','blog_id=; path=/')
+		self.redirect('/blog')
 
 class Welcome(Handler):
 	def get(self):
 		cookie_value = self.request.cookies.get('user_id')
 		user_id=cookie_value.split('|')[0]
 		username=db.GqlQuery("select * from User where user_id="+user_id).get().user_name
-		self.render("welcome.html",username=username)
+		blogs = db.GqlQuery("select * from Blog where user_id="+user_id+" order by created desc").fetch(limit=10)
+		self.render("welcome.html",username=username,blogs=blogs,cookie_value=cookie_value)
 
 class NewPostHandler(Handler):
 	def get(self):
-		self.render("new_post.html")
+		cookie_blog_id = self.request.cookies.get('blog_id')
+		if cookie_blog_id:
+			blog_details  = db.GqlQuery("select * from Blog where blog_id="+str(cookie_blog_id)).get()
+			self.render("new_post.html",title=blog_details.title,blog=blog_details.blog)
+		else:
+			self.render("new_post.html")
 	def post(self,*args, **kw):
+		# Fetch the user id by reading cokie value
+		cookie_value = self.request.cookies.get('user_id')
+		user_id=cookie_value.split('|')[0]
+		username=db.GqlQuery("select * from User where user_id="+user_id).get().user_name
 		title=self.request.get("subject")
 		blog=self.request.get("content")
 		error = "Both title and blog should present"
 		if title and blog:
-			blogs_count = db.GqlQuery("select * from Blog").count()
-			blog_id = self.new_id(blogs_count)
-			blog_entry = Blog(title=title, blog=blog, blog_id=blog_id)
-			blog_entry.put()
-			redirect_url = '/blog/'+str(blog_id)
-			self.redirect(redirect_url)
+			cookie_blog_id = self.request.cookies.get('blog_id')
+			if cookie_blog_id:
+				blog_entry = db.GqlQuery("select * from Blog where blog_id="+str(cookie_blog_id)).get()
+				blog_entry.title = title
+				blog_entry.blog = blog
+				blog_entry.user_id = int(user_id)
+				blog_entry.put()
+				redirect_url = '/blog/'+str(cookie_blog_id)
+				self.redirect(redirect_url)
+			else:
+				blogs_count = db.GqlQuery("select * from Blog").count()
+				blog_id = self.new_id(blogs_count)
+				blog_entry = Blog(title=title, blog=blog, blog_id=blog_id, user_id=int(user_id))
+				blog_entry.put()
+				redirect_url = '/blog/'+str(blog_id)
+				self.redirect(redirect_url)
 		else:
 			self.render("new_post.html", title=title, blog=blog, error=error)
 
@@ -168,11 +213,36 @@ class PermaLink(Handler):
 		
 		blog = db.GqlQuery("select * from Blog where blog_id ="+ str(blog_id)).get()
 		
+		
 		# Rendering Permalink page with details of title (Subject) and Blog (Content)
 		self.render("blog_details.html",title=blog.title,blog=blog.blog)
 	
 	def post(self,*a,**kw):
 		self.render("blog_details.html")
+
+class EditBlog(Handler):
+	def get(self,blog_id):
+		user_id = self.get_current_user()
+		if user_id:
+			if (db.GqlQuery("select * from Blog where blog_id="+blog_id).get().user_id) == int(user_id):
+				blog = db.GqlQuery("select * from Blog where blog_id="+blog_id).get()
+				self.response.headers.add_header('set-cookie','blog_id=%s; path=/' % blog_id)
+				#self.render("new_post.html",title=blog.title,blog=blog.blog)
+				self.redirect("/blog/newpost")
+			else:
+				self.write("Edit not possible. You dont own this blog")
+
+
+class DeleteBlog(Handler):
+	def get(self,blog_id):
+		user_id = self.get_current_user()
+		if user_id:
+			if (db.GqlQuery("select * from Blog where blog_id="+blog_id).get().user_id) == int(user_id):
+				blog=db.GqlQuery("select * from Blog where blog_id="+blog_id).get()
+				blog.delete()
+				self.redirect("/blog")
+			else:
+				self.write("Delete not possible. You dont own this blog")
 
 
 app = webapp2.WSGIApplication([
@@ -182,5 +252,7 @@ app = webapp2.WSGIApplication([
     ('/blog/([0-9]+)', PermaLink),
     ('/blog/welcome', Welcome),
     ('/blog/login', Login),
-    ('/blog/logout', Logout)
+    ('/blog/logout', Logout),
+    ('/blog/([0-9]+)/editblog', EditBlog),
+    ('/blog/([0-9]+)/deleteblog',DeleteBlog)
 ], debug=True)

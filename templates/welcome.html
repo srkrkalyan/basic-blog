@@ -1,4 +1,26 @@
 <!DOCTYPE HTML>
 <html>
 <h3>Welcome, {{username}}</h3>
+<hr>
+<a href="/blog/newpost">Submit a new blog?</a>
+<br>
+<a href="/blog">Home Page</a>
+<br>
+{% if cookie_value %}
+<a href="/blog/logout">Logout</a>
+{% endif %}
+<br>
+<body>
+	{% if blogs %}
+	{% for blog in blogs %}
+	<h3>{{blog.title}}</h3>
+	<div><a href="/blog/{{blog.blog_id}}/editblog">Edit</a></div>
+	<div><a href="/blog/{{blog.blog_id}}/deleteblog">Delete</a></div>
+	<hr>
+	<div>
+		{{blog.blog}}
+	</div>
+	{% endfor %}
+	{% endif %}
+</body>
 </html>

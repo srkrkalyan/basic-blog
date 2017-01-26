@@ -1,10 +1,25 @@
 <!DOCTYPE HTML>
 
 <html>
+<head>
+<a href="/blog/login">Login</a>
+<br>
+<a href="/blog/signup">New User Signup</a>
+<br>
+<a href="/blog/newpost">Submit New Blog</a>
+<br>
+</head>
+{% if cookie_value %}
+<a href="/blog/logout">Logout</a>
+{% endif %}
+<br>
 <body>
 	{% if blogs %}
 	{% for blog in blogs %}
 	<h3>{{blog.title}}</h3>
+	<div><a href="/blog/{{blog.blog_id}}/editblog">Edit</a>
+	<a href="/blog/{{blog.blog_id}}/deleteblog">Delete</a>
+	</div>
 	<hr>
 	<div>
 		{{blog.blog}}
