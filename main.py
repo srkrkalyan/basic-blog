@@ -51,6 +51,11 @@ class Comment(db.Model):
 	comment=db.TextProperty(required=True)
 	created = db.DateTimeProperty(auto_now_add = True)
 
+class Like(db.Model):
+	user_id=db.IntegerProperty(required=True)
+	blog_id=db.IntegerProperty(required=True)
+	like_flag = db.BooleanProperty(required=True)
+
 
 
 class Handler(webapp2.RequestHandler):
@@ -211,8 +216,9 @@ class NewPostHandler(Handler):
 			self.render("new_post.html")
 	def post(self,*args, **kw):
 		# Fetch the user id by reading cokie value
-		cookie_value = self.request.cookies.get('user_id')
-		user_id=cookie_value.split('|')[0]
+		#cookie_value = self.request.cookies.get('user_id')
+		#user_id=cookie_value.split('|')[0]
+		user_id=self.get_current_user()
 		username=db.GqlQuery("select * from User where user_id="+user_id).get().user_name
 		title=self.request.get("subject")
 		blog=self.request.get("content")
@@ -242,6 +248,7 @@ class PermaLink(Handler):
 		# Get the latest blog entry from Blog table using newly generated blog_id. 
 		# I can do this by 'select * from Blog order by created desc'.fetch(limit=1)
 		
+		time.sleep(2)
 		blog = db.GqlQuery("select * from Blog where blog_id ="+ str(blog_id)).get()
 		
 		
@@ -279,17 +286,45 @@ class LikeBlog(Handler):
 	def get(self,blog_id):
 		user_id = self.get_current_user()
 		if user_id:
-			if not self.user_owns_blog(user_id,blog_id):
+			if self.user_owns_blog(user_id,blog_id):
+				self.write("You cant like your own blog")
+			elif db.GqlQuery("select * from Like where user_id="+ user_id+" and blog_id="+ blog_id).get():
+				self.redirect("/blog")
+			else:
+				#like_entry=db.GqlQuery("select * from Like where user_id="+ user_id+" and blog_id="+ blog_id).get()
+				like_entry=Like(user_id=int(user_id), blog_id=int(blog_id), like_flag=True)
+				like_entry.put()
 				blog_entry = db.GqlQuery("select * from Blog where blog_id="+str(blog_id)).get()
-				if blog_entry.likes_count == None:
+				likes_count=db.GqlQuery("select * from Like where blog_id="+ blog_id+" and like_flag = True").count()
+				blog_entry.likes_count = likes_count
+				blog_entry.put()
+				self.redirect("/blog")
+				'''if likes_count == None:
 					blog_entry.likes_count = 0
 					blog_entry.likes_count = int(blog_entry.likes_count)+1
 					blog_entry.put()
+					# comment before deployment
+					time.sleep(2)
 					self.redirect("/blog")
-			else:
-				self.write("You cant like your own blog")
+				else:
+					blog_entry.likes_count = int(blog_entry.likes_count)+1
+					blog_entry.put()
+					# comment before deployment
+					time.sleep(2)
+					self.redirect("/blog") '''
 		else:
 			self.write("You need to login to like a blog")
+
+class UnLikeBlog(Handler):
+	def get(self,blog_id):
+		user_id = self.get_current_user()
+		if db.GqlQuery("select * from Like where user_id="+ user_id+" and blog_id="+ blog_id).get():
+			like_entry=db.GqlQuery("select * from Like where user_id="+ user_id+" and blog_id="+ blog_id).get()
+			like_entry.like_flag=False
+			like_entry.put()
+			self.redirect("/blog")
+
+
 
 class CommentBlog(Handler):
 	def get(self,blog_id):
@@ -331,5 +366,6 @@ app = webapp2.WSGIApplication([
     ('/blog/([0-9]+)/editblog', EditBlog),
     ('/blog/([0-9]+)/deleteblog',DeleteBlog),
     ('/blog/([0-9]+)/likeblog', LikeBlog),
-    ('/blog/([0-9]+)/commentblog', CommentBlog)
+    ('/blog/([0-9]+)/commentblog', CommentBlog),
+    ('/blog/([0-9]+)/unlikeblog', UnLikeBlog),
 ], debug=True)

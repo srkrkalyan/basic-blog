@@ -1,6 +1,9 @@
 <!DOCTYPE HTML>
 
 <html>
+<head>
+	<h2>Home Page</h2>
+</head>
 <a href="/blog/login">Login</a>
 <br>
 <a href="/blog/signup">New User Signup</a>
@@ -17,8 +20,11 @@
 	{% for blog in blogs %}
 	<h3>{{blog.title}}</h3>
 	<div>
+		{% if blog.likes_count != None %}
 		{{blog.likes_count}}
+		{% endif %}
 		<a href="/blog/{{blog.blog_id}}/likeblog">Likes</a>
+		<a href="/blog/{{blog.blog_id}}/unlikeblog">Unlike</a>
 	</div>
 	<div><a href="/blog/{{blog.blog_id}}/editblog">Edit</a>
 	<a href="/blog/{{blog.blog_id}}/deleteblog">Delete</a>
