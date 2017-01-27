@@ -34,6 +34,7 @@ class Blog(db.Model):
 	created = db.DateTimeProperty(auto_now_add = True, indexed=True)
 	blog_id = db.IntegerProperty(required=True)
 	user_id = db.IntegerProperty(required=True)
+	likes_count = db.IntegerProperty()
 
 
 class User(db.Model):
@@ -81,6 +82,21 @@ class Handler(webapp2.RequestHandler):
 				return None
 		else:
 			return None
+
+	def get_current_blog(self):
+		cookie_blog_id = self.request.cookies.get('blog_id')
+		if cookie_blog_id:
+			return cookie_blog_id
+		else:
+			return None
+
+	def user_owns_blog(self,user_id,blog_id):
+		print 'Blog Id:'+blog_id
+		if int(user_id) == db.GqlQuery("select * from Blog where blog_id="+blog_id).get().user_id:
+			return True
+		else:
+			return False
+
 
 class BlogHandler(Handler):
     def get(self):
@@ -244,6 +260,22 @@ class DeleteBlog(Handler):
 			else:
 				self.write("Delete not possible. You dont own this blog")
 
+class LikeBlog(Handler):
+	def get(self,blog_id):
+		user_id = self.get_current_user()
+		if user_id:
+			if not self.user_owns_blog(user_id,blog_id):
+				blog_entry = db.GqlQuery("select * from Blog where blog_id="+str(blog_id)).get()
+				if blog_entry.likes_count == None:
+					blog_entry.likes_count = 0
+					blog_entry.likes_count = int(blog_entry.likes_count)+1
+					blog_entry.put()
+					self.redirect("/blog")
+			else:
+				self.write("You cant like your own blog")
+		else:
+			self.write("You need to login to like a blog")
+
 
 app = webapp2.WSGIApplication([
 	('/blog/signup', SignUp),
@@ -254,5 +286,6 @@ app = webapp2.WSGIApplication([
     ('/blog/login', Login),
     ('/blog/logout', Logout),
     ('/blog/([0-9]+)/editblog', EditBlog),
-    ('/blog/([0-9]+)/deleteblog',DeleteBlog)
+    ('/blog/([0-9]+)/deleteblog',DeleteBlog),
+    ('/blog/([0-9]+)/likeblog', LikeBlog)
 ], debug=True)

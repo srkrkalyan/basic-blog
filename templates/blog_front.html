@@ -1,14 +1,13 @@
 <!DOCTYPE HTML>
 
 <html>
-<head>
 <a href="/blog/login">Login</a>
 <br>
 <a href="/blog/signup">New User Signup</a>
 <br>
 <a href="/blog/newpost">Submit New Blog</a>
 <br>
-</head>
+<br>
 {% if cookie_value %}
 <a href="/blog/logout">Logout</a>
 {% endif %}
@@ -17,6 +16,10 @@
 	{% if blogs %}
 	{% for blog in blogs %}
 	<h3>{{blog.title}}</h3>
+	<div>
+		{{blog.likes_count}}
+		<a href="/blog/{{blog.blog_id}}/likeblog">Likes</a>
+	</div>
 	<div><a href="/blog/{{blog.blog_id}}/editblog">Edit</a>
 	<a href="/blog/{{blog.blog_id}}/deleteblog">Delete</a>
 	</div>
