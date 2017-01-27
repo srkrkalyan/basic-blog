@@ -27,6 +27,10 @@
 	<div>
 		{{blog.blog}}
 	</div>
+	<div>
+		{{blog.comments_count}}
+		<a href="/blog/{{blog.blog_id}}/commentblog">Comment</a>
+	</div>
 	{% endfor %}
 	{% endif %}
 </body>

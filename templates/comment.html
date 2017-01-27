@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+
+<html>
+<form method="post">
+	<a href="/blog">Home Page</a>
+	<a href="/blog/logout">Log Out</a>
+	<br>
+	{% if blog %}
+	<h3>{{blog.title}}</h3>
+	<br>
+	{{blog.blog}}
+	{% endif %}
+	<br>
+	<hr>
+	<br>
+<div class="subject">
+	Add Comment
+	<textarea name="comment">{{comment}}</textarea>
+</div>
+<br>
+<div class="button">
+	<input type="submit" name="Add Comment">
+</div>
+<div class="error">
+	{{error}}
+</div>
+</form>
+<br>
+{% if comments %}
+{% for each in comments %}
+{{each.user_name}}:
+{{each.comment}}
+<br>
+{% endfor %}
+{% endif %}
+</html>

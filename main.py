@@ -44,6 +44,15 @@ class User(db.Model):
 	email=db.StringProperty()
 
 
+class Comment(db.Model):
+	user_id=db.IntegerProperty(required=True)
+	blog_id=db.IntegerProperty(required=True)
+	user_name=db.StringProperty(required=True)
+	comment=db.TextProperty(required=True)
+	created = db.DateTimeProperty(auto_now_add = True)
+
+
+
 class Handler(webapp2.RequestHandler):
 	def write(self,*a,**kw):
 		self.response.out.write(*a,**kw)
@@ -74,12 +83,13 @@ class Handler(webapp2.RequestHandler):
 			return False
 
 	def get_current_user(self):
-		cookie_value = self.request.cookies.get('user_id').split('|')[0]
-		if cookie_value:
-			if db.GqlQuery('select * from User where user_id='+str(cookie_value)).get():
-				return cookie_value
-			else:
-				return None
+		if self.request.cookies.get('user_id'):
+			cookie_value = self.request.cookies.get('user_id').split('|')[0]
+			if cookie_value:
+				if db.GqlQuery('select * from User where user_id='+str(cookie_value)).get():
+					return cookie_value
+				else:
+					return None
 		else:
 			return None
 
@@ -92,11 +102,16 @@ class Handler(webapp2.RequestHandler):
 
 	def user_owns_blog(self,user_id,blog_id):
 		print 'Blog Id:'+blog_id
+		print db.GqlQuery("select * from Blog where blog_id="+blog_id).get().user_id
 		if int(user_id) == db.GqlQuery("select * from Blog where blog_id="+blog_id).get().user_id:
+			print 'Yes'
 			return True
 		else:
 			return False
 
+	def create_comment_id(self):
+		comments = db.GqlQuery("select * from Comment").count()
+		return comments+7000+1
 
 class BlogHandler(Handler):
     def get(self):
@@ -276,6 +291,34 @@ class LikeBlog(Handler):
 		else:
 			self.write("You need to login to like a blog")
 
+class CommentBlog(Handler):
+	def get(self,blog_id):
+		user_id = self.get_current_user()
+		if user_id:
+			if not self.user_owns_blog(user_id,blog_id):
+				comments=db.GqlQuery("select * from Comment where blog_id="+ blog_id+" order by created desc").fetch(limit=100)
+				blog_entry = db.GqlQuery("select * from Blog where blog_id="+ blog_id).get()
+				self.render("comment.html",comments=comments, blog=blog_entry)
+			else:
+				self.write("You can't comment on your blog")
+		else:
+			self.write("Please login to comment a blog")
+				
+	def post(self,blog_id):
+		user_id = self.get_current_user()
+		comment_id = self.create_comment_id()
+		user_name = db.GqlQuery("select * from User where user_id="+ str(user_id)).get().user_name
+		comment=self.request.get('comment')
+		if comment:
+			comment_entry=Comment(blog_id=int(blog_id), user_id=int(user_id), user_name=str(user_name), comment=comment)
+			comment_entry.put()
+			# Comment this before deployment
+			time.sleep(2)
+			self.redirect('/blog/'+str(blog_id)+'/commentblog')
+		else:
+			time.sleep(2)
+			self.redirect('/blog/'+str(blog_id)+'/commentblog')
+
 
 app = webapp2.WSGIApplication([
 	('/blog/signup', SignUp),
@@ -287,5 +330,6 @@ app = webapp2.WSGIApplication([
     ('/blog/logout', Logout),
     ('/blog/([0-9]+)/editblog', EditBlog),
     ('/blog/([0-9]+)/deleteblog',DeleteBlog),
-    ('/blog/([0-9]+)/likeblog', LikeBlog)
+    ('/blog/([0-9]+)/likeblog', LikeBlog),
+    ('/blog/([0-9]+)/commentblog', CommentBlog)
 ], debug=True)
