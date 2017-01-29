@@ -286,45 +286,42 @@ class LikeBlog(Handler):
 	def get(self,blog_id):
 		user_id = self.get_current_user()
 		if user_id:
+			#User Owns the Blog
 			if self.user_owns_blog(user_id,blog_id):
 				self.write("You cant like your own blog")
-			elif db.GqlQuery("select * from Like where user_id="+ user_id+" and blog_id="+ blog_id).get():
+			#User already liked the blog
+			elif db.GqlQuery("select * from Like where user_id="+ user_id+" and blog_id="+ blog_id+" and like_flag = True").get():
 				self.redirect("/blog")
+			#User likes the blog
 			else:
-				#like_entry=db.GqlQuery("select * from Like where user_id="+ user_id+" and blog_id="+ blog_id).get()
 				like_entry=Like(user_id=int(user_id), blog_id=int(blog_id), like_flag=True)
 				like_entry.put()
 				blog_entry = db.GqlQuery("select * from Blog where blog_id="+str(blog_id)).get()
-				likes_count=db.GqlQuery("select * from Like where blog_id="+ blog_id+" and like_flag = True").count()
-				blog_entry.likes_count = likes_count
+				if blog_entry.likes_count is None:
+					blog_entry.likes_count = 0
+				blog_entry.likes_count = blog_entry.likes_count+1
 				blog_entry.put()
 				self.redirect("/blog")
-				'''if likes_count == None:
-					blog_entry.likes_count = 0
-					blog_entry.likes_count = int(blog_entry.likes_count)+1
-					blog_entry.put()
-					# comment before deployment
-					time.sleep(2)
-					self.redirect("/blog")
-				else:
-					blog_entry.likes_count = int(blog_entry.likes_count)+1
-					blog_entry.put()
-					# comment before deployment
-					time.sleep(2)
-					self.redirect("/blog") '''
 		else:
 			self.write("You need to login to like a blog")
 
 class UnLikeBlog(Handler):
 	def get(self,blog_id):
 		user_id = self.get_current_user()
-		if db.GqlQuery("select * from Like where user_id="+ user_id+" and blog_id="+ blog_id).get():
-			like_entry=db.GqlQuery("select * from Like where user_id="+ user_id+" and blog_id="+ blog_id).get()
-			like_entry.like_flag=False
-			like_entry.put()
-			self.redirect("/blog")
-
-
+		if user_id:
+			if self.user_owns_blog(user_id,blog_id):
+				self.write("You cant like your own blog")
+			elif db.GqlQuery("select * from Like where user_id="+ user_id+" and blog_id="+ blog_id+" and like_flag = False").get():
+				self.redirect("/blog")
+			else:
+				like_entry=Like(user_id=int(user_id), blog_id=int(blog_id), like_flag=False)
+				like_entry.put()
+				blog_entry = db.GqlQuery("select * from Blog where blog_id="+str(blog_id)).get()
+				blog_entry.likes_count = blog_entry.likes_count-1
+				blog_entry.put()
+				self.redirect("/blog")
+		else:
+			self.write("You need to login to like your blog")
 
 class CommentBlog(Handler):
 	def get(self,blog_id):
