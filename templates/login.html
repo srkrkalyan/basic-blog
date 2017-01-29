@@ -1,18 +1,22 @@
 <!DOCTYPE HTML>
 <html>
 <head>
+</head>
+<body>
+	<div class="Login">
 	{% if cookie_value %}
 	<h3>User already logged in !</h3>
 	{% else %}
 	<h3>User Login</h3>
 	<form method="post">
-		<div>
-			Username*
+		<div class="username">
+			<label for="username">Username*
 			<input type="text" name="username" value="{{username}}">
+			</label>
 		</div>
 		<br>
-		<div>
-			Password*
+		<div class="password">
+			<label for="password">Password*</label>
 			<input type="password" name="password" value="{{password}}">
 		</div>
 		<h5>{{error}}</h5>
@@ -23,5 +27,6 @@
 		<a href="/blog/signup">New User? Sign Up here</a>
 	</form>
 	{% endif %}
-</head>
+</div>
+</body>
 </html>
