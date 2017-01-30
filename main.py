@@ -279,6 +279,8 @@ class EditBlog(Handler):
 				self.redirect("/blog/newpost")
 			else:
 				self.write("Edit not possible. You dont own this blog")
+		else:
+			self.redirect('/blog/login')
 
 
 class DeleteBlog(Handler):
