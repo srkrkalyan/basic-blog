@@ -219,12 +219,17 @@ class Welcome(Handler):
 
 class NewPostHandler(Handler):
 	def get(self):
-		cookie_blog_id = self.request.cookies.get('blog_id')
-		if cookie_blog_id:
-			blog_details  = db.GqlQuery("select * from Blog where blog_id="+str(cookie_blog_id)).get()
-			self.render("new_post.html",title=blog_details.title,blog=blog_details.blog, cancel=True)
+		user_id = self.get_current_user()
+		if user_id:
+			if db.GqlQuery("select * from User where user_id ="+ user_id):
+					cookie_blog_id = self.request.cookies.get('blog_id')
+					if cookie_blog_id:
+						blog_details  = db.GqlQuery("select * from Blog where blog_id="+str(cookie_blog_id)).get()
+						self.render("new_post.html",title=blog_details.title,blog=blog_details.blog, cancel=True)
+					else:
+						self.render("new_post.html")
 		else:
-			self.render("new_post.html")
+			self.redirect('/blog/login')
 	def post(self,*args, **kw):
 		if self.request.get('cancel'):
 			self.redirect('/blog')
@@ -317,7 +322,7 @@ class LikeBlog(Handler):
 				blog_entry.put()
 				self.redirect("/blog")
 		else:
-			self.write("You need to login to like a blog")
+			self.redirect('/blog/login')
 
 class UnLikeBlog(Handler):
 	def get(self,blog_id):
@@ -335,7 +340,7 @@ class UnLikeBlog(Handler):
 				blog_entry.put()
 				self.redirect("/blog")
 		else:
-			self.write("You need to login to like your blog")
+			self.redirect('/blog/login')
 
 class CommentBlog(Handler):
 	def get(self,blog_id):
@@ -348,7 +353,7 @@ class CommentBlog(Handler):
 			else:
 				self.write("You can't comment on your blog")
 		else:
-			self.write("Please login to comment a blog")
+			self.redirect('/blog/login')
 				
 	def post(self,blog_id):
 		user_id = self.get_current_user()
