@@ -1,34 +1,38 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-	<h3>User Registration</h3>
+	<h3 style="color:navy;text-align:center;">User Registration</h3>
 	<form method="post">
-		<div>
-			Username*
+		<div class="username" style="color:navy;text-align:center;margin:auto;box-sizing: border-box;margin-right:30px">
+			<label for="username">Username*
 			<input type="text" name="username" value="{{username}}">
+		</label>
 		</div>
 		<br>
-		<div>
-			Password*
+		<div class="password" style="color:navy;text-align:center;margin:auto;box-sizing: border-box;margin-right:30px">
+			<label for="password">Password*
 			<input type="password" name="password" value="{{password}}">
+		</label>
 		</div>
 		<br>
-		<div>
-			Verify Password*
+		<div class="verif_password" style="color:navy;text-align:center;margin:auto;box-sizing: border-box;margin-right:75px">
+			<label for="verify">Verify Password*
 			<input type="password" name="verify" value="{{verify_password}}">
+		</label>
 		</div>
 		<br>
-		<div>
-			Email (optional)
+		<div class="email" style="color:navy;text-align:center;margin:auto;box-sizing: border-box;margin-right:65px">
+			<label for="email">Email (optional)
 			<input type="text" name="email" value="{{email}}">
+		</label>
 		</div>
-		<h4>{{error}}</h4>
-		<br>
-		<div>
+		<h5 style="color:red;text-align:center;">{{error}}</h5>
+		<p align="center">
 			<input type="Submit" name="submit">
-		</div>
-		<br>
+		</p>
+		<p align="center">
 		<a href="/blog/login">Existing User? Login here</a>
+	</p>
 	</form>
 </head>
 </html>
