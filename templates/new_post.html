@@ -16,6 +16,11 @@
 <div class="button">
 	<input type="Submit">
 </div>
+{% if cancel %}
+<div class="button">
+	<button name="cancel" type="submit" value="cancel">Cancel</button>
+</div>
+{% endif %}
 <div class="error">
 	<h5 style="color:red;text-align:center;">{{error}}</h5>
 </div>

@@ -222,37 +222,37 @@ class NewPostHandler(Handler):
 		cookie_blog_id = self.request.cookies.get('blog_id')
 		if cookie_blog_id:
 			blog_details  = db.GqlQuery("select * from Blog where blog_id="+str(cookie_blog_id)).get()
-			self.render("new_post.html",title=blog_details.title,blog=blog_details.blog)
+			self.render("new_post.html",title=blog_details.title,blog=blog_details.blog, cancel=True)
 		else:
 			self.render("new_post.html")
 	def post(self,*args, **kw):
-		# Fetch the user id by reading cokie value
-		#cookie_value = self.request.cookies.get('user_id')
-		#user_id=cookie_value.split('|')[0]
-		user_id=self.get_current_user()
-		username=db.GqlQuery("select * from User where user_id="+user_id).get().user_name
-		title=self.request.get("subject")
-		blog=self.request.get("content")
-		error = "Both title and blog should present"
-		if title and blog:
-			cookie_blog_id = self.request.cookies.get('blog_id')
-			if cookie_blog_id:
-				blog_entry = db.GqlQuery("select * from Blog where blog_id="+str(cookie_blog_id)).get()
-				blog_entry.title = title
-				blog_entry.blog = blog
-				blog_entry.user_id = int(user_id)
-				blog_entry.put()
-				redirect_url = '/blog/'+str(cookie_blog_id)
-				self.redirect(redirect_url)
-			else:
-				blogs_count = db.GqlQuery("select * from Blog").count()
-				blog_id = self.new_id(blogs_count)
-				blog_entry = Blog(title=title, blog=blog, blog_id=blog_id, user_id=int(user_id))
-				blog_entry.put()
-				redirect_url = '/blog/'+str(blog_id)
-				self.redirect(redirect_url)
+		if self.request.get('cancel'):
+			self.redirect('/blog')
 		else:
-			self.render("new_post.html", title=title, blog=blog, error=error)
+			user_id=self.get_current_user()
+			username=db.GqlQuery("select * from User where user_id="+user_id).get().user_name
+			title=self.request.get("subject")
+			blog=self.request.get("content")
+			error = "Both title and blog should present"
+			if title and blog:
+				cookie_blog_id = self.request.cookies.get('blog_id')
+				if cookie_blog_id:
+					blog_entry = db.GqlQuery("select * from Blog where blog_id="+str(cookie_blog_id)).get()
+					blog_entry.title = title
+					blog_entry.blog = blog
+					blog_entry.user_id = int(user_id)
+					blog_entry.put()
+					redirect_url = '/blog/'+str(cookie_blog_id)
+					self.redirect(redirect_url)
+				else:
+					blogs_count = db.GqlQuery("select * from Blog").count()
+					blog_id = self.new_id(blogs_count)
+					blog_entry = Blog(title=title, blog=blog, blog_id=blog_id, user_id=int(user_id))
+					blog_entry.put()
+					redirect_url = '/blog/'+str(blog_id)
+					self.redirect(redirect_url)
+			else:
+				self.render("new_post.html", title=title, blog=blog, error=error)
 
 class PermaLink(Handler):
 	def get(self,blog_id):
@@ -276,7 +276,6 @@ class EditBlog(Handler):
 			if (db.GqlQuery("select * from Blog where blog_id="+blog_id).get().user_id) == int(user_id):
 				blog = db.GqlQuery("select * from Blog where blog_id="+blog_id).get()
 				self.response.headers.add_header('set-cookie','blog_id=%s; path=/' % blog_id)
-				#self.render("new_post.html",title=blog.title,blog=blog.blog)
 				self.redirect("/blog/newpost")
 			else:
 				self.write("Edit not possible. You dont own this blog")
