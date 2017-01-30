@@ -1,23 +1,28 @@
 <!DOCTYPE HTML>
 <html>
-<h3>Welcome, {{username}}</h3>
+<h3 style="color:navy">Welcome, {{username}}</h3>
 <hr>
+<div style="margin:auto;float:left">
 <a href="/blog/newpost">Submit a new blog?</a>
-<br>
+</div>
+<div style="margin-left:35%;float:left">
 <a href="/blog">Home Page</a>
-<br>
+</div>
 {% if cookie_value %}
+<div style="margin:auto;float:right">
 <a href="/blog/logout">Logout</a>
+</div>
 {% endif %}
 <br>
 <body>
 	{% if blogs %}
 	{% for blog in blogs %}
-	<h3>{{blog.title}}</h3>
-	<div><a href="/blog/{{blog.blog_id}}/editblog">Edit</a></div>
-	<div><a href="/blog/{{blog.blog_id}}/deleteblog">Delete</a></div>
+	<h3 style="color:navy">{{blog.title}}</h3>
+	<div style="color:navy;margin:auto;float:left"><a href="/blog/{{blog.blog_id}}/editblog">Edit</a></div>
+	<div style="color:navy;margin-left:10%;float:left"><a href="/blog/{{blog.blog_id}}/deleteblog">Delete</a></div>
+	<br>
 	<hr>
-	<div>
+	<div style="color:navy;margin:auto">
 		{{blog.blog}}
 	</div>
 	{% endfor %}
