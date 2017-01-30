@@ -293,6 +293,8 @@ class DeleteBlog(Handler):
 				self.redirect("/blog")
 			else:
 				self.write("Delete not possible. You dont own this blog")
+		else:
+			self.redirect('/blog/login')
 
 class LikeBlog(Handler):
 	def get(self,blog_id):
