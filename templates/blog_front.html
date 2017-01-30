@@ -2,35 +2,36 @@
 
 <html>
 <head>
-	<h2>Home Page</h2>
+	<h2 style="color:navy">Home Page</h2>
 </head>
-<a href="/blog/login">Login</a>
-<a href="/blog/signup">New User Signup</a>
-<a href="/blog/newpost">Submit New Blog</a>
-<br>
-<br>
+<a style="margin:auto;float:left" href="/blog/login">Login</a>
+<a style="margin-left:20%;float:left" href="/blog/signup">New User Signup</a>
+<a style="margin-left:18%;float:left" href="/blog/newpost">Submit New Blog</a>
 {% if cookie_value %}
-<a href="/blog/logout">Logout</a>
+<a style="margin-left:25%;float:left" href="/blog/logout">Logout</a>
 {% endif %}
 <br>
 <body>
 	{% if blogs %}
 	{% for blog in blogs %}
-	<h3>{{blog.title}}</h3>
+	<hr>
+	<h3 style="color:navy">{{blog.title}}</h3>
 	<div>
 		{% if blog.likes_count != None %}
 		{{blog.likes_count}}
 		{% endif %}
-		<a href="/blog/{{blog.blog_id}}/likeblog">Likes</a>
-		<a href="/blog/{{blog.blog_id}}/unlikeblog">Unlike</a>
+		<a style="margin:auto;float:left" href="/blog/{{blog.blog_id}}/likeblog">Likes</a>
+		<a style="margin-left:20%;float:left" href="/blog/{{blog.blog_id}}/unlikeblog">Unlike</a>
 	</div>
-	<div><a href="/blog/{{blog.blog_id}}/editblog">Edit</a>
-	<a href="/blog/{{blog.blog_id}}/deleteblog">Delete</a>
+	<div><a style="margin-left:18%;float:left" href="/blog/{{blog.blog_id}}/editblog">Edit</a>
+	<a style="margin-left:25%;float:left" href="/blog/{{blog.blog_id}}/deleteblog">Delete</a>
 	</div>
-	<hr>
+	<br>
+	<br>
 	<div>
 		{{blog.blog}}
 	</div>
+	<br>
 	<div>
 		{{blog.comments_count}}
 		<a href="/blog/{{blog.blog_id}}/commentblog">Comment</a>
