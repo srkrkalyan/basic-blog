@@ -16,13 +16,13 @@
 	{% for blog in blogs %}
 	<hr>
 	<h3 style="color:navy">{{blog.title}}</h3>
-	<div>
+	<div style="margin=auto;float:left">
 		{% if blog.likes_count != None %}
 		{{blog.likes_count}}
 		{% endif %}
-		<a style="margin:auto;float:left" href="/blog/{{blog.blog_id}}/likeblog">Likes</a>
-		<a style="margin-left:20%;float:left" href="/blog/{{blog.blog_id}}/unlikeblog">Unlike</a>
+		<a style="margin=auto;float:left" href="/blog/{{blog.blog_id}}/likeblog">Likes</a>
 	</div>
+	<a style="margin-left:20%;float:left" href="/blog/{{blog.blog_id}}/unlikeblog">Unlike</a>
 	<div><a style="margin-left:18%;float:left" href="/blog/{{blog.blog_id}}/editblog">Edit</a>
 	<a style="margin-left:25%;float:left" href="/blog/{{blog.blog_id}}/deleteblog">Delete</a>
 	</div>
