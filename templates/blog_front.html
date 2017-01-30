@@ -4,8 +4,10 @@
 <head>
 	<h2 style="color:navy">Home Page</h2>
 </head>
+{% if not logged_in %}
 <a style="margin:auto;float:left" href="/blog/login">Login</a>
 <a style="margin-left:20%;float:left" href="/blog/signup">New User Signup</a>
+{% endif %}
 <a style="margin-left:18%;float:left" href="/blog/newpost">Submit New Blog</a>
 {% if cookie_value %}
 <a style="margin-left:25%;float:left" href="/blog/logout">Logout</a>

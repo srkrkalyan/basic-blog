@@ -118,14 +118,25 @@ class Handler(webapp2.RequestHandler):
 		comments = db.GqlQuery("select * from Comment").count()
 		return comments+7000+1
 
+	def login_status(self):
+		cookie_value = self.request.cookies.get('user_id').split('|')[0]
+		if cookie_value:
+			if cookie_value == self.get_current_user():
+				return True
+			else:
+				return False
+		else:
+			return False
+
 class BlogHandler(Handler):
     def get(self):
-    	cookie_value = self.request.cookies.get('user_id')
+    	cookie_value = self.get_current_user()
+    	print 'Login status:'+ str(self.login_status())
     	if (db.GqlQuery("select * from Blog").count()) > 0:
     		blogs = db.GqlQuery("select * from Blog order by created desc").fetch(limit=10)
-    		self.render("blog_front.html",blogs=blogs,cookie_value=cookie_value)
+    		self.render("blog_front.html",blogs=blogs,cookie_value=cookie_value,logged_in=self.login_status())
     	else:
-    		self.render("blog_front.html")
+    		self.render("blog_front.html",logged_in=self.login_status())
 
 class SignUp(Handler):
 	def get(self):
