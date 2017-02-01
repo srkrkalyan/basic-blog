@@ -402,6 +402,17 @@ class EditComment(Handler):
 		comments = db.GqlQuery("select * from Comment where blog_id ="+ blog_id).fetch(limit=1000)
 		self.render("comment.html",blog=blog_entry,comments=comments)
 
+class DeleteComment(Handler):
+	def get(self,blog_id,comment_id):
+		user_id = self.get_current_user()
+		if self.user_owns_comment(comment_id):
+			comment_entry = db.GqlQuery("select * from Comment where comment_id ="+ comment_id).get()
+			comment_entry.delete()
+			time.sleep(1)
+			self.redirect('/blog/'+blog_id+'/commentblog')
+		else:
+			self.write("You cant delete other's comments")
+
 app = webapp2.WSGIApplication([
 	('/blog/signup', SignUp),
     ('/blog', BlogHandler),
@@ -415,5 +426,6 @@ app = webapp2.WSGIApplication([
     ('/blog/([0-9]+)/likeblog', LikeBlog),
     ('/blog/([0-9]+)/commentblog', CommentBlog),
     ('/blog/([0-9]+)/unlikeblog', UnLikeBlog),
-    ('/blog/([0-9]+)/([0-9]+)/editcomment', EditComment)
+    ('/blog/([0-9]+)/([0-9]+)/editcomment', EditComment),
+    ('/blog/([0-9]+)/([0-9]+)/deletecomment', DeleteComment)
 ], debug=True)
