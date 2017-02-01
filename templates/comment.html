@@ -24,13 +24,23 @@
 <div class="error">
 	{{error}}
 </div>
-</form>
 <br>
 {% if comments %}
+<h5 style="color:red;text-align:center;">{{edit_error}}</h5>
 {% for each in comments %}
+{% if each.comment_id == edit_comment %}
+{{each.user_name}}:
+<textarea name="editcomment">{{each.comment}}</textarea>
+<input type="submit" name="Update Comment">
+{% else %}
 {{each.user_name}}:
 {{each.comment}}
+<a href="/blog/{{each.blog_id}}/{{each.comment_id}}/editcomment">Edit</a>
+<a href="/blog/{{each.comment_id}}/deletecomment">Delete</a>
 <br>
+<br>
+{% endif %}
 {% endfor %}
 {% endif %}
+</form>
 </html>
