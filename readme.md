@@ -3,6 +3,15 @@ Synopsis
 
 A multi user blog web application hosted on Google cloud.
 
+Installation
+
+Clone the master branch to your local repository
+Install Google Application Engine (https://cloud.google.com/appengine/downloads)
+Open GoogleAppEngine Launcher
+Open the repository as a new application in GAE launcher
+Start the server to run application locally
+
+
 Features
 
 Home Page: https://basic-blog-156503.appspot.com/blog
