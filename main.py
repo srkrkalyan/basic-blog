@@ -576,6 +576,7 @@ class DeleteComment(Handler):
             self.write("You cant delete other's comments")
 
 app = webapp2.WSGIApplication([
+    ('/', BlogHandler),
     ('/blog/signup', SignUp),
     ('/blog', BlogHandler),
     ('/blog/newpost', NewPostHandler),
