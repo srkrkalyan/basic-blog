@@ -239,7 +239,7 @@ class Login(Handler):
             "select * from User where user_name= :1",
             username).get()
         # This needs to be commented before deployment
-        # time.sleep(2)
+        time.sleep(2)
         # print user_entry.user_name
         if username and password:
             if user_entry:
@@ -273,6 +273,7 @@ class Logout(Handler):
 class Welcome(Handler):
 
     def get(self):
+        time.sleep(2)
         cookie_value = self.request.cookies.get('user_id')
         user_id = cookie_value.split('|')[0]
         username = db.GqlQuery(
