@@ -44,6 +44,3 @@ Installation
 
 This is a web app deployed on Google cloud. App can be accessed @ https://basic-blog-156503.appspot.com/blog. No install needed.
 
-Contributors
-
-Any enthusiastic contributor can send a pull request to contribute on enahancements
