@@ -323,35 +323,36 @@ class NewPostHandler(Handler):
             title = self.request.get("subject")
             blog = self.request.get("content")
             error = "Both title and blog should present"
-            if title and blog:
-                cookie_blog_id = self.request.cookies.get('blog_id')
-                if cookie_blog_id:
-                    blog_entry = db.GqlQuery(
-                        "select * from Blog where blog_id=" +
-                        str(cookie_blog_id)).get()
-                    blog_entry.title = title
-                    blog_entry.blog = blog
-                    blog_entry.user_id = int(user_id)
-                    blog_entry.put()
-                    redirect_url = '/blog/' + str(cookie_blog_id)
-                    self.redirect(redirect_url)
+            if user_id:
+                if title and blog:
+                    cookie_blog_id = self.request.cookies.get('blog_id')
+                    if cookie_blog_id:
+                        blog_entry = db.GqlQuery(
+                            "select * from Blog where blog_id=" +
+                            str(cookie_blog_id)).get()
+                        blog_entry.title = title
+                        blog_entry.blog = blog
+                        blog_entry.user_id = int(user_id)
+                        blog_entry.put()
+                        redirect_url = '/blog/' + str(cookie_blog_id)
+                        self.redirect(redirect_url)
+                    else:
+                        blogs_count = db.GqlQuery("select * from Blog").count()
+                        blog_id = self.new_id(blogs_count)
+                        blog_entry = Blog(
+                            title=title,
+                            blog=blog,
+                            blog_id=blog_id,
+                            user_id=int(user_id))
+                        blog_entry.put()
+                        redirect_url = '/blog/' + str(blog_id)
+                        self.redirect(redirect_url)
                 else:
-                    blogs_count = db.GqlQuery("select * from Blog").count()
-                    blog_id = self.new_id(blogs_count)
-                    blog_entry = Blog(
+                    self.render(
+                        "new_post.html",
                         title=title,
                         blog=blog,
-                        blog_id=blog_id,
-                        user_id=int(user_id))
-                    blog_entry.put()
-                    redirect_url = '/blog/' + str(blog_id)
-                    self.redirect(redirect_url)
-            else:
-                self.render(
-                    "new_post.html",
-                    title=title,
-                    blog=blog,
-                    error=error)
+                        error=error)
 
 
 class PermaLink(Handler):
