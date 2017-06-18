@@ -1,9 +1,6 @@
-<!DOCTYPE HTML>
-<html>
-<head>
-
-</head>
-<body>
+{% extends "basic_template.html" %}
+{% block title %}Login Page{% endblock %}
+{% block body %}
 	<div class="Login">
 	{% if cookie_value %}
 	<h3>User already logged in !</h3>
@@ -31,5 +28,4 @@
 	</form>
 	{% endif %}
 </div>
-</body>
-</html>
+{% endblock %}

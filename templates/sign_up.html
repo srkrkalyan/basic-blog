@@ -1,6 +1,6 @@
-<!DOCTYPE HTML>
-<html>
-<head>
+{% extends "basic_template.html" %}
+{% block title %}New User Sign Up{% endblock %}
+{% block body %}
 	<h3 style="color:navy;text-align:center;">User Registration</h3>
 	<form method="post">
 		<div class="username" style="color:navy;text-align:center;margin:auto;box-sizing: border-box;margin-right:30px">
@@ -34,5 +34,4 @@
 		<a href="/blog/login">Existing User? Login here</a>
 	</p>
 	</form>
-</head>
-</html>
+{% endblock %}

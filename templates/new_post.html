@@ -1,6 +1,6 @@
-<!DOCTYPE HTML>
-
-<html>
+{% extends "basic_template.html" %}
+{% block title %}New Post{% endblock %}
+{% block body %}
 <form method="post">
 <div class="subject" style="color:navy;text-align:center;margin:auto;width:50%;box-sizing: border-box;">
 	Subject
@@ -26,4 +26,4 @@
 </div>
 </form>
 <br>
-</html>
+{% endblock %}

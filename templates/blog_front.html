@@ -1,9 +1,7 @@
-<!DOCTYPE HTML>
 
-<html>
-<head>
-	<h2 style="color:navy">Home Page</h2>
-</head>
+{% extends "basic_template.html" %}
+{% block title %}Blog Details Page{% endblock %}
+{% block body %}
 {% if not logged_in %}
 <a style="margin:auto;float:left" href="/blog/login">Login</a>
 <a style="margin-left:20%;float:left" href="/blog/signup">New User Signup</a>
@@ -13,7 +11,7 @@
 <a style="margin-left:25%;float:left" href="/blog/logout">Logout</a>
 {% endif %}
 <br>
-<body>
+
 	{% if blogs %}
 	{% for blog in blogs %}
 	<hr>
@@ -40,5 +38,5 @@
 	</div>
 	{% endfor %}
 	{% endif %}
-</body>
-</html>
+{% endblock %}
+

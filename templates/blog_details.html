@@ -1,6 +1,6 @@
-<!DOCTYPE HTML>
-
-<html>
+{% extends "basic_template.html" %}
+{% block title %}Blog Details{% endblock %}
+{% block body %}
 <a href="/blog">Home Page</a>
 <a href="/blog/logout">Logout</a>
 <br>
@@ -19,4 +19,4 @@
 <br>
 <br>
 <h3>{{blog_id}}</h3>
-</html>
+{% endblock %}

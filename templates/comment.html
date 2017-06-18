@@ -1,6 +1,6 @@
-<!DOCTYPE HTML>
-
-<html>
+{% extends "basic_template.html" %}
+{% block title %}Comments Page{% endblock %}
+{% block body %}
 <form method="post">
 	<a href="/blog">Home Page</a>
 	<a href="/blog/logout">Log Out</a>
@@ -43,4 +43,4 @@
 {% endfor %}
 {% endif %}
 </form>
-</html>
+{% endblock %}
