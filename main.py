@@ -129,12 +129,15 @@ class Handler(webapp2.RequestHandler):
         return comments + 7000 + 1
 
     def login_status(self):
-        cookie_value = self.request.cookies.get('user_id')
+        cookie_value = self.request.cookies.get('user_id').split('|')[0]
         if cookie_value:
-            if cookie_value.split('|')[0] == self.get_current_user():
-                return True
-            else:
-                return False
+            if db.GqlQuery(
+                    'select * from User where user_id=' +
+                        str(cookie_value)).get():
+                if cookie_value == self.get_current_user():
+                    return True
+                else:
+                    return False
         else:
             return False
 
@@ -547,22 +550,36 @@ class EditComment(Handler):
                 edit_error=error)
 
     def post(self, blog_id, comment_id):
-        updated_comment = self.request.get("editcomment")
-        comment_entry = db.GqlQuery(
-            "select * from Comment where comment_id =" +
-            str(comment_id)).get()
-        comment_entry.comment = updated_comment
-        comment_entry.put()
-        time.sleep(2)
-        blog_entry = db.GqlQuery(
-            "select * from Blog where blog_id =" +
-            blog_id).get()
-        comments = db.GqlQuery(
-            "select * from Comment where blog_id =" +
-            blog_id).fetch(
-            limit=1000)
-        self.render("comment.html", blog=blog_entry, comments=comments)
-
+        user_id = self.get_current_user()
+        if self.user_owns_comment(comment_id):
+            updated_comment = self.request.get("editcomment")
+            comment_entry = db.GqlQuery(
+                "select * from Comment where comment_id =" +
+                str(comment_id)).get()
+            comment_entry.comment = updated_comment
+            comment_entry.put()
+            time.sleep(2)
+            blog_entry = db.GqlQuery(
+                "select * from Blog where blog_id =" +
+                blog_id).get()
+            comments = db.GqlQuery(
+                "select * from Comment where blog_id =" +
+                blog_id).fetch(
+                limit=1000)
+            self.render("comment.html", blog=blog_entry, comments=comments)
+        else:
+            error = "You cant edit other's comments"
+            blog_entry = db.GqlQuery(
+                "select * from Blog where blog_id =" + blog_id).get()
+            comments = db.GqlQuery(
+                "select * from Comment where blog_id =" +
+                blog_id).fetch(
+                limit=1000)
+            self.render(
+                "comment.html",
+                blog=blog_entry,
+                comments=comments,
+                edit_error=error)
 
 class DeleteComment(Handler):
 
