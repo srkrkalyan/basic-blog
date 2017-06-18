@@ -499,20 +499,21 @@ class CommentBlog(Handler):
             "select * from User where user_id=" +
             str(user_id)).get().user_name
         comment = self.request.get('comment')
-        if comment:
-            comment_entry = Comment(
-                blog_id=int(blog_id),
-                user_id=int(user_id),
-                user_name=str(user_name),
-                comment=comment,
-                comment_id=comment_id)
-            comment_entry.put()
-            # Comment this before deployment
-            time.sleep(2)
-            self.redirect('/blog/' + str(blog_id) + '/commentblog')
-        else:
-            time.sleep(2)
-            self.redirect('/blog/' + str(blog_id) + '/commentblog')
+        if user_id:
+            if comment:
+                comment_entry = Comment(
+                    blog_id=int(blog_id),
+                    user_id=int(user_id),
+                    user_name=str(user_name),
+                    comment=comment,
+                    comment_id=comment_id)
+                comment_entry.put()
+                # Comment this before deployment
+                time.sleep(2)
+                self.redirect('/blog/' + str(blog_id) + '/commentblog')
+            else:
+                time.sleep(2)
+                self.redirect('/blog/' + str(blog_id) + '/commentblog')
 
 
 class EditComment(Handler):
